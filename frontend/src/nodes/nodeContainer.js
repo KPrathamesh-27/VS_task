@@ -1,51 +1,47 @@
 // NodeContainer.js
-
 import { Handle } from "reactflow";
 import { Box } from "@mui/material";
 import { useState, useRef, useEffect, useCallback } from "react";
-import {
-  TextField,
-  Typography,
-  Select,
-  FormControl,
-  InputLabel,
-} from "@mui/material";
+import { TextField, Typography, Select, FormControl, InputLabel} from "@mui/material";
 import debounce from "lodash/debounce";
 
 export const CustomHandle = ({ id, type, position, top }) => {
+  console.log(`CustomHandle created: id=${id}`);
   return (
-    <div>
-      <Handle
-        type={type}
-        position={position}
-        id={id}
-        style={{ position: "absolute", top: `${top}%`, zIndex: 1 }}
-      />
-    </div>
+    <Handle
+      type={type}
+      position={position}
+      id={id}
+      style={{ position: "absolute", top: `${top}%`, zIndex: 1 }}
+    />
   );
 };
 
 export const NodeContainer = ({ children, height, className }) => {
-  return (
+return (
     <Box
-      className={className}
-      sx={{
-        fontFamily: "Parkinsans",
-        height: height,
-        width: "250px",
-        border: "1px solid black",
-        padding: "10px",
-        position: "relative",
-        borderRadius: 1,
-        boxShadow: 2,
-        backgroundColor: "white",
-      }}
+        className={className}
+        sx={{
+            fontFamily: "Parkinsans",
+            height: height,
+            width: "250px",
+            border: "2px #0B2447",
+            padding: "10px",
+            position: "relative",
+            borderRadius: 1,
+            backgroundColor: "#d7edfc",
+            boxShadow: "0 0 10px #19376D",
+            transition: "box-shadow 0.3s ease-in-out",
+            "&:hover": {
+                boxShadow: "0 0 20px #295F98",
+            },
+        }}
     >
-      {children}
+        {children}
     </Box>
-  );
+);
 };
-  
+
 export const NodeComponent = ({
   id,
   data,
@@ -62,13 +58,21 @@ export const NodeComponent = ({
   const [nodeType, setNodeType] = useState(data?.[`${type}Type`] || "Text");
   const [text, setText] = useState(data?.text || "");
   const [variables, setVariables] = useState(new Set());
+  const [variableHandles, setVariableHandles] = useState([]);
   const [dimensions, setDimensions] = useState({ width: 250, height: 80 });
   const inputRef = useRef(null);
-  
+
   useEffect(() => {
-    // Trigger rerender of dependent components when `name` changes
     console.log(`Name updated to: ${name}`);
   }, [name]);
+
+  useEffect(() => {
+    console.log("Variables in the node:", variables);
+  }, [variables]);
+
+  useEffect(() => {
+    console.log("Handles in the node:", handles);
+  }, [handles]);
 
   const handleTextChange = (e) => {
     const newText = e.target.value;
@@ -84,55 +88,33 @@ export const NodeComponent = ({
     }
 
     setVariables(foundVariables);
-    
+    setVariableHandles([...foundVariables]);
   };
 
-  const renderVariables = () => {
-    return [...variables].map((variable, index) => (
-      <div
-        key={variable}
-        style={{
-          position: "absolute",
-          top: 40 + index * 30,
-          left: 0,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}
-      >
-        <span style={{ fontSize: "10px", transform: `translate(-${variable.length*5+20}px, ${10 + index *5}px)`, display: 'inline-block' }}>{variable}</span>
-        <CustomHandle
-          type="target"
-          position="left"
-          id={`${id}-input-${variable}`}
-        />
-      </div>
-    ));
-  };
-  
   const renderInputOutputNode = () => {
-    if (type !== 'Input' && type !== 'Output') {
+    if (type !== "Input" && type !== "Output") {
       return null;
     }
-  
-    const isInput = type === 'Input';
+
+    const isInput = type === "Input";
     return (
       <div
         key={id}
         style={{
           position: "absolute",
           top: 130,
-          [isInput ? "right" : "left"]: 0, 
-          display: 'flex',
-          alignItems: 'center',
-          
+          [isInput ? "right" : "left"]: 0,
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <span
           style={{
             fontSize: "10px",
-            transform: `translate(${isInput ? name.length * 5 + 20 : -name.length * 5 - 20}px)`,
-            display: 'inline-block',
+            transform: `translate(${
+              isInput ? name.length * 5 + 20 : -name.length * 5 - 20
+            }px)`,
+            display: "inline-block",
           }}
         >
           {name}
@@ -140,22 +122,25 @@ export const NodeComponent = ({
       </div>
     );
   };
-  
-  
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSetDimensions = useCallback(
     debounce((height) => {
       setDimensions((prev) => ({
         ...prev,
         height: Math.max(height, 80),
       }));
-    }, 5), 
-    []
+    }, 5),
+    [setDimensions] 
   );
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.style.height = "80px";
-      const scrollHeight = Math.min(Math.max(inputRef.current.scrollHeight, 80), 100000);
+      const scrollHeight = Math.min(
+        Math.max(inputRef.current.scrollHeight, 20),
+        100000
+      );
       inputRef.current.style.height = `${scrollHeight}px`;
       debouncedSetDimensions(scrollHeight);
     }
@@ -229,10 +214,36 @@ export const NodeComponent = ({
         />
       ))}
 
-    {renderVariables()} 
+      {variableHandles.map((variable, index) => (
+        <div
+          key={variable}
+          style={{
+            position: "absolute",
+            top: 40 + index * 30,
+            left: 0,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "10px",
+              transform: `translate(-${variable.length * 5 + 20}px, ${
+                10 + index * 5
+              }px)`,
+              display: "inline-block",
+            }}
+          >{`${variable}`}</span>
+          <CustomHandle
+            type="target"
+            position="left"
+            id={`input-${index}-${variable}`}
+          />
+        </div>
+      ))}
 
       {type !== "Text" && type !== "LLM" && (
-        <div>
+        <div style={{ fontFamily: "Parkinsans"}}>
           <FormControl variant="outlined" margin="normal" fullWidth>
             <TextField
               id="name"
@@ -242,6 +253,7 @@ export const NodeComponent = ({
               onChange={(e) => setName(e.target.value)}
               fullWidth
               margin="normal"
+              style={{ background: "#fff" }}
             />
           </FormControl>
           <FormControl variant="outlined" margin="normal" fullWidth>
@@ -255,12 +267,11 @@ export const NodeComponent = ({
                 name: "type",
                 id: "node-type",
               }}
+              style={{ backgroundColor: "#fff"}}
             >
-              {
-                <option value="Text" style={{ fontFamily: "Parkinsans" }}>
-                  Text
-                </option>
-              }
+              <option value="Text" style={{ fontFamily: "Parkinsans" }}>
+                Text
+              </option>
               {isInput ? (
                 <option value="File" style={{ fontFamily: "Parkinsans" }}>
                   File
