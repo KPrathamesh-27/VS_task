@@ -2,11 +2,10 @@
 import { Handle } from "reactflow";
 import { Box } from "@mui/material";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { TextField, Typography, Select, FormControl, InputLabel} from "@mui/material";
+import { TextField, Typography, Select, FormControl, InputLabel } from "@mui/material";
 import debounce from "lodash/debounce";
 
 export const CustomHandle = ({ id, type, position, top }) => {
-  console.log(`CustomHandle created: id=${id}`);
   return (
     <Handle
       type={type}
@@ -18,28 +17,28 @@ export const CustomHandle = ({ id, type, position, top }) => {
 };
 
 export const NodeContainer = ({ children, height, className }) => {
-return (
+  return (
     <Box
-        className={className}
-        sx={{
-            fontFamily: "Parkinsans",
-            height: height,
-            width: "250px",
-            border: "2px #0B2447",
-            padding: "10px",
-            position: "relative",
-            borderRadius: 1,
-            backgroundColor: "#d7edfc",
-            boxShadow: "0 0 10px #19376D",
-            transition: "box-shadow 0.3s ease-in-out",
-            "&:hover": {
-                boxShadow: "0 0 20px #295F98",
-            },
-        }}
+      className={className}
+      sx={{
+        fontFamily: "Parkinsans",
+        height: height,
+        width: "250px",
+        border: "2px #0B2447",
+        padding: "15px",
+        position: "relative",
+        borderRadius: 1,
+        backgroundColor: "#d7edfc",
+        boxShadow: "0 0 10px #19376D",
+        transition: "box-shadow 0.3s ease-in-out",
+        "&:hover": {
+          boxShadow: "0 0 20px #295F98",
+        },
+      }}
     >
-        {children}
+      {children}
     </Box>
-);
+  );
 };
 
 export const NodeComponent = ({
@@ -128,15 +127,15 @@ export const NodeComponent = ({
     debounce((height) => {
       setDimensions((prev) => ({
         ...prev,
-        height: Math.max(height, 80),
+        height: Math.max(height, 20),
       }));
-    }, 5),
-    [setDimensions] 
+    }, 1),
+    [setDimensions]
   );
 
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.style.height = "80px";
+      inputRef.current.style.height = "20px";
       const scrollHeight = Math.min(
         Math.max(inputRef.current.scrollHeight, 20),
         100000
@@ -168,6 +167,7 @@ export const NodeComponent = ({
           fontFamily: "Parkinsans",
           fontWeight: "bold",
           textTransform: "uppercase",
+          textAlign: "flex-start",
         }}
       >
         {type}
@@ -243,7 +243,7 @@ export const NodeComponent = ({
       ))}
 
       {type !== "Text" && type !== "LLM" && (
-        <div style={{ fontFamily: "Parkinsans"}}>
+        <div style={{ fontFamily: "Parkinsans" }}>
           <FormControl variant="outlined" margin="normal" fullWidth>
             <TextField
               id="name"
@@ -267,7 +267,7 @@ export const NodeComponent = ({
                 name: "type",
                 id: "node-type",
               }}
-              style={{ backgroundColor: "#fff"}}
+              style={{ backgroundColor: "#fff" }}
             >
               <option value="Text" style={{ fontFamily: "Parkinsans" }}>
                 Text
